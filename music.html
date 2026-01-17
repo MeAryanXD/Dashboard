@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeAryanXD | Player</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/title.jpg" type="image/jpg">
+    <style>
+        :root {
+            --deep-blue: #000814;
+            --purple-glow: #7F00CF;
+            --text-white: #e0e1dd;
+        }
+        * { box-sizing: border-box; }
+        
+        html { background-color: var(--deep-blue); }
+        body { 
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
+            background-color: transparent; 
+            font-family: 'Segoe UI', sans-serif; color: var(--text-white);
+        }
+
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        .container {
+            position: relative; z-index: 10; width: 90%; max-width: 700px; height: 85vh; margin: 7.5vh auto;
+            background: rgba(0, 8, 20, 0.85); border: 1px solid rgba(127, 0, 207, 0.3); border-radius: 25px;
+            backdrop-filter: blur(12px); box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: slideUpFade 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .container.fade-out { opacity: 0; transform: translateY(20px) scale(0.98); }
+
+        .header { padding: 30px 20px 10px 20px; text-align: center; flex-shrink: 0; position: relative; }
+        
+        .back-btn {
+            position: absolute; left: 20px; top: 32px; text-decoration: none;
+            color: var(--text-white); font-size: 0.8rem; font-weight: bold; background: transparent;
+            padding: 8px 15px; border-radius: 30px; border: 1px solid rgba(127, 0, 207, 0.5);
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 5px;
+        }
+        .back-btn:hover { background: var(--purple-glow); border-color: var(--purple-glow); box-shadow: 0 0 15px var(--purple-glow); transform: translateX(-3px); }
+
+        h1 { margin: 0; font-size: 3rem; color: #fff; text-shadow: 0 0 25px var(--purple-glow); }
+
+        .song-list-container { flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding: 20px 30px; }
+        .song-list { list-style: none; padding: 0; margin: 0; }
+        .song-item {
+            width: 100%; padding: 18px 20px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 15px; font-size: 1.1rem;
+            cursor: pointer; transition: all 0.2s ease-in-out; display: flex; align-items: center; color: #ccc;
+        }
+        .song-item span { margin-left: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .song-item:hover { border-color: var(--purple-glow); background: rgba(127, 0, 207, 0.1); color: white; transform: scale(1.02); box-shadow: 0 0 20px rgba(127, 0, 207, 0.4); }
+        .active-song { border-color: var(--purple-glow); background: rgba(127, 0, 207, 0.25); box-shadow: 0 0 25px var(--purple-glow); color: white; font-weight: bold; }
+
+        .player-controls { flex-shrink: 0; background: rgba(0, 0, 0, 0.5); padding: 25px 30px; border-top: 1px solid rgba(127, 0, 207, 0.2); text-align: center; }
+        .now-playing-text { color: var(--purple-glow); font-size: 1rem; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(127, 0, 207, 0.5); }
+        
+        audio { width: 100%; height: 45px; outline: none; border-radius: 30px; filter: invert(0.9) hue-rotate(240deg) saturate(3); }
+        audio::-webkit-media-controls-overflow-button { display: none !important; }
+        audio::-webkit-media-controls-enclosure { overflow: hidden; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--purple-glow); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="container" id="playerContainer">
+        <div class="header">
+            <a href="index.html" class="back-btn" onclick="transitionToDashboard(event)">❮ Dashboard</a>
+            <h1>MeAryanXD</h1>
+        </div>
+        
+        <div class="song-list-container">
+            <ul class="song-list" id="playlist"></ul>
+        </div>
+
+        <div class="player-controls">
+            <div class="now-playing-text" id="status">Select a track</div>
+            <audio id="audioPlayer" controls crossorigin="anonymous" controlsList="nodownload noplaybackrate" oncontextmenu="return false;"></audio>
+        </div>
+    </div>
+
+    <script>
+        function transitionToDashboard(event) {
+            event.preventDefault(); 
+            const container = document.getElementById('playerContainer');
+            container.classList.add('fade-out'); 
+            setTimeout(() => { window.location.href = 'index.html'; }, 500);
+        }
+
+        // ==========================================
+        //  PASTE YOUR GITHUB LINKS HERE
+        // ==========================================
+        const mySongs = [
+            { name: "After Dark", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/After%20Dark.mp3" },
+            { name: "Aryan's Theme", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Aryan's%20Theme.mp3" },
+            { name: "Bekhyali", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Bekhyali.mp3" },
+            { name: "Believer", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Believer.mp3" },
+            { name: "Counting Stars Remake", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Counting%20Stars%20Remake.mp3" },
+            { name: "Counting Stars", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Counting%20Stars.mp3" },
+            { name: "Die With A Smile", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Die%20With%20A%20Smile.mp3" },
+            { name: "Hamdard", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Hamdard.mp3" },
+            { name: "He's A Pirate", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/He's%20a%20Pirate.mp3" },
+            { name: "Jab Tak", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Jab%20Tak.mp3" },
+            { name: "Janam Janam", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Janam%20Janam.mp3" },
+            { name: "Kaise Hua", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Kaise%20Hua.mp3" },
+            { name: "Megalovania", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Megalovania.mp3" },
+            { name: "MockingBird", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/MockingBird.mp3" },
+            { name: "Raabta", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Raabta.mp3" },
+            { name: "Radioactive", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Radioactive.mp3" },
+            { name: "Rush E", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Rush%20E.mp3" },
+            { name: "Sanam Re", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Sanam%20Re.mp3" },
+            { name: "Tu Hai Kahan", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Tu%20Hai%20Kahan.mp3" },
+            { name: "Tum Hi Ho", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Tum%20Hi%20Ho.mp3" },
+            { name: "Two Moons", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Two%20Moons.mp3" },
+            { name: "Whatever It Takes", link: "https://github.com/MeAryanXD/Dashboard/blob/main/songs/Whatever%20It%20Takes.mp3" }
+        ];
+
+        const playlistEl = document.getElementById('playlist');
+        const player = document.getElementById('audioPlayer');
+        const statusEl = document.getElementById('status');
+
+        function getRawGithubUrl(url) {
+            return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+        }
+
+        mySongs.forEach((song) => {
+            if (song.link && song.link.includes('github.com')) {
+                const streamUrl = getRawGithubUrl(song.link);
+                const li = document.createElement('li');
+                li.className = 'song-item';
+                li.innerHTML = `🎵 <span>${song.name}</span>`;
+                
+                li.onclick = () => {
+                    document.querySelectorAll('.song-item').forEach(el => el.classList.remove('active-song'));
+                    li.classList.add('active-song');
+                    statusEl.innerText = "Playing: " + song.name;
+                    player.src = streamUrl;
+                    player.play().catch(e => { console.log("Error:", e); statusEl.innerText = "Error: Check Console"; });
+                };
+                playlistEl.appendChild(li);
+            }
+        });
+
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        const numStars = 1000;
+        const stars = [];
+        for (let i = 0; i < numStars; i++) {
+            stars.push({ x: Math.random() * w - w / 2, y: Math.random() * h - h / 2, z: Math.random() * w });
+        }
+        
+        function animate() {
+            ctx.fillStyle = "#000814";
+            ctx.fillRect(0, 0, w, h);
+            const cx = w / 2; const cy = h / 2;
+            ctx.fillStyle = "white";
+            stars.forEach(star => {
+                star.z -= 2; // MATCHED SPEED: 2
+                if (star.z <= 0) { star.z = w; star.x = Math.random() * w - w / 2; star.y = Math.random() * h - h / 2; }
+                const x = (star.x * (w / star.z)) + cx;
+                const y = (star.y * (w / star.z)) + cy;
+                const size = (1 - star.z / w) * 2.5; // MATCHED SIZE: 2.5
+                if (x > 0 && x < w && y > 0 && y < h) { ctx.beginPath(); ctx.arc(x, y, size > 0 ? size : 0, 0, Math.PI * 2); ctx.fill(); }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
