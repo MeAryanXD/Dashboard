@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeAryanXD | Dashboard</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/title.jpg" type="image/jpg">
+    <style>
+        :root {
+            --deep-blue: #000814;
+            --purple-glow: #7F00CF;
+            --text-white: #e0e1dd;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-white);
+        }
+
+        /* Starfield Background */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh;
+            margin: 5vh auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 40px;
+            color: #fff;
+            text-shadow: 0 0 25px var(--purple-glow);
+            letter-spacing: 2px;
+        }
+
+        /* Grid for Buttons */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+            gap: 30px;
+            width: 100%;
+        }
+
+        /* Button Card Style */
+        .card {
+            background: rgba(0, 8, 20, 0.7);
+            border: 1px solid rgba(127, 0, 207, 0.3);
+            border-radius: 20px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-white);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: var(--purple-glow);
+            box-shadow: 0 0 50px var(--purple-glow);
+            background: rgba(127, 0, 207, 0.2);
+        }
+
+        /* NEW STYLE FOR IMAGES */
+        .card-img {
+            width: 70px;  /* Size of the image */
+            height: 70px;
+            object-fit: contain; /* Keeps aspect ratio correct */
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px rgba(127, 0, 207, 0.5)); /* Adds a purple glow to the image */
+        }
+
+        .label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Responsive: Stack on mobile */
+        @media (max-width: 768px) {
+            .grid-menu { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="container">
+        <h1>MeAryanXD</h1>
+
+        <div class="grid-menu">
+            <a href="music.html" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/music.png" class="card-img" alt="Music">
+                <div class="label">Music</div>
+            </a>
+
+            <a href="https://open.spotify.com" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/spotify.png" class="card-img" alt="Spotify">
+                <div class="label">Spotify</div>
+            </a>
+
+            <a href="https://discord.com/app" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/discord-2.png" class="card-img" alt="Discord">
+                <div class="label">Discord</div>
+            </a>
+
+            <a href="https://www.youtube.com" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/yt.png" class="card-img" alt="YouTube">
+                <div class="label">YouTube</div>
+            </a>
+
+            <a href="https://www.instagram.com" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/instagram.png" class="card-img" alt="Instagram">
+                <div class="label">Instagram</div>
+            </a>
+
+            <a href="https://outlook.live.com" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/outlook.png" class="card-img" alt="Outlook">
+                <div class="label">Outlook</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        
+        const numStars = 1000;
+        const stars = [];
+        for (let i = 0; i < numStars; i++) {
+            stars.push({ x: Math.random() * w - w / 2, y: Math.random() * h - h / 2, z: Math.random() * w });
+        }
+        
+        function animate() {
+            ctx.fillStyle = "#000814";
+            ctx.fillRect(0, 0, w, h);
+            const cx = w / 2; const cy = h / 2;
+            ctx.fillStyle = "white";
+            stars.forEach(star => {
+                star.z -= 1; 
+                if (star.z <= 0) { star.z = w; star.x = Math.random() * w - w / 2; star.y = Math.random() * h - h / 2; }
+                const x = (star.x * (w / star.z)) + cx;
+                const y = (star.y * (w / star.z)) + cy;
+                const size = (1 - star.z / w) * 2;
+                if (x > 0 && x < w && y > 0 && y < h) { ctx.beginPath(); ctx.arc(x, y, size > 0 ? size : 0, 0, Math.PI * 2); ctx.fill(); }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
