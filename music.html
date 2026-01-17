@@ -71,6 +71,15 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--purple-glow); border-radius: 10px; }
+
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .back-btn { font-size: 0.7rem; padding: 5px 10px; top: 38px; left: 15px; }
+            .container { width: 95%; height: 90vh; }
+            .song-list-container { padding: 15px; }
+            .song-item { padding: 15px; font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -174,11 +183,11 @@
             const cx = w / 2; const cy = h / 2;
             ctx.fillStyle = "white";
             stars.forEach(star => {
-                star.z -= 2; // MATCHED SPEED: 2
+                star.z -= 2; 
                 if (star.z <= 0) { star.z = w; star.x = Math.random() * w - w / 2; star.y = Math.random() * h - h / 2; }
                 const x = (star.x * (w / star.z)) + cx;
                 const y = (star.y * (w / star.z)) + cy;
-                const size = (1 - star.z / w) * 2.5; // MATCHED SIZE: 2.5
+                const size = (1 - star.z / w) * 2.5; 
                 if (x > 0 && x < w && y > 0 && y < h) { ctx.beginPath(); ctx.arc(x, y, size > 0 ? size : 0, 0, Math.PI * 2); ctx.fill(); }
             });
             requestAnimationFrame(animate);
