@@ -33,7 +33,7 @@
 
         h1 {
             font-size: 4rem; margin-bottom: 40px; color: #fff; text-shadow: 0 0 25px var(--purple-glow);
-            letter-spacing: 2px; animation: float 6s ease-in-out infinite;
+            letter-spacing: 2px; animation: float 6s ease-in-out infinite; text-align: center;
         }
 
         @keyframes float {
@@ -63,7 +63,22 @@
 
         .label { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; }
 
-        @media (max-width: 768px) { .grid-menu { grid-template-columns: repeat(2, 1fr); } }
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; margin-bottom: 20px; }
+            .grid-menu { grid-template-columns: repeat(2, 1fr); gap: 15px; } /* 2 Columns on tablets/phones */
+            .card { height: 150px; }
+            .card-img { width: 50px; height: 50px; }
+            .label { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 400px) {
+             /* For very small phones, keep 2 columns but make text smaller */
+            h1 { font-size: 2.2rem; }
+            .grid-menu { gap: 10px; }
+            .card { height: 130px; }
+            .label { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
@@ -131,16 +146,14 @@
         function animate() {
             ctx.fillStyle = "#000814";
             ctx.fillRect(0, 0, w, h);
-            
             const cx = w / 2; const cy = h / 2;
             ctx.fillStyle = "white";
-            
             stars.forEach(star => {
-                star.z -= 2; // MATCHED SPEED: 2
+                star.z -= 2; 
                 if (star.z <= 0) { star.z = w; star.x = Math.random() * w - w / 2; star.y = Math.random() * h - h / 2; }
                 const x = (star.x * (w / star.z)) + cx;
                 const y = (star.y * (w / star.z)) + cy;
-                const size = (1 - star.z / w) * 2.5; // MATCHED SIZE: 2.5
+                const size = (1 - star.z / w) * 2.5; 
                 if (x > 0 && x < w && y > 0 && y < h) { ctx.beginPath(); ctx.arc(x, y, size > 0 ? size : 0, 0, Math.PI * 2); ctx.fill(); }
             });
             requestAnimationFrame(animate);
