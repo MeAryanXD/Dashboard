@@ -5,79 +5,232 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeAryanXD | Dashboard</title>
     <link rel="icon" href="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/title.jpg" type="image/jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --deep-blue: #000814;
             --purple-glow: #7F00CF;
             --text-white: #e0e1dd;
+            --neon-blue: #00d2ff;
+            --glass-bg: rgba(0, 0, 0, 0.6);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         html { background-color: var(--deep-blue); }
 
         body {
-            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow-y: auto;
             background-color: transparent; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif; 
             color: var(--text-white);
         }
 
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
         .container {
-            position: relative; z-index: 10; width: 90%; max-width: 1000px; height: 90vh; margin: 5vh auto;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; z-index: 10; width: 90%; max-width: 1200px;
+            margin: 5px auto; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             opacity: 1; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            padding-bottom: 50px;
         }
 
         .container.fade-out { opacity: 0; transform: scale(0.95); }
 
+        /* --- TITLE --- */
         h1 {
-            font-size: 4rem; margin-bottom: 40px; color: #04d9ff; text-shadow: 0 0 25px var(--purple-glow);
-            letter-spacing: 2px; animation: float 6s ease-in-out infinite; text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem; 
+            margin-bottom: 0px; 
+            margin-top: 10px;
+            line-height: 1.1;
+            color: #A10CF7;
+            text-shadow: 0 0 25px var(--purple-glow);
+            letter-spacing: 2px; 
+            text-align: center;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        /* --- GREETING TEXT --- */
+        #greeting-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem; 
+            color: var(--neon-blue);
+            margin-top: 5px; 
+            margin-bottom: 25px; 
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+            text-align: center;
         }
 
-        .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 100%; }
+        /* --- CONTROL PANEL --- */
+        .control-panel {
+            display: flex;
+            justify-content: space-between; 
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 20px; 
+            gap: 20px;
+        }
 
+        .left-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .right-controls {
+            flex-grow: 1;
+            max-width: 450px; 
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* --- SEARCH BOX --- */
+        .search-box {
+            background: var(--glass-bg);
+            border: 2px solid var(--neon-blue);
+            color: white;
+            border-radius: 50px;
+            padding: 15px 20px;
+            width: 300px;
+            font-size: 14px;
+            outline: none;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        .search-box:focus {
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .search-btn {
+            padding: 15px 25px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #0000ff, #00d2ff);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+        .search-btn:hover { transform: scale(1.05); }
+
+        /* --- CLOCK WIDGET --- */
+        .clock-widget {
+            background: rgba(255, 255, 255, 0.9);
+            color: #0000aa;
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: 2px solid blue;
+            text-align: center;
+            min-width: 160px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            height: 50px; 
+        }
+
+        .time { font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+        .date { font-size: 0.7rem; font-weight: 600; color: #333; }
+
+        /* --- QUICK NOTES --- */
+        #quick-note {
+            width: 100%;
+            height: 60px; 
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            color: white;
+            padding: 15px;
+            border-radius: 20px;
+            resize: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.3s;
+        }
+        #quick-note:focus { border-color: var(--neon-blue); outline: none; }
+
+        /* --- GRID MENU --- */
+        .grid-menu { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 30px; 
+            width: 100%; 
+            justify-items: center; 
+        }
+
+        /* --- CARD STYLE --- */
         .card {
-            background: rgba(0, 8, 20, 0.7); border: 1px solid rgba(127, 0, 207, 0.3); border-radius: 20px;
-            height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-decoration: none; color: var(--text-white); backdrop-filter: blur(10px);
-            transition: all 0.3s ease; box-shadow: 0 0 30px rgba(0, 0, 0, 0.5); cursor: pointer;
+            background: var(--glass-bg); 
+            border: var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            width: 220px; 
+            height: 140px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-decoration: none; color: var(--text-white);
+            transition: all 0.3s ease; cursor: pointer;
         }
 
         .card:hover {
-            transform: translateY(-10px) scale(1.05); border-color: var(--purple-glow);
-            box-shadow: 0 0 50px var(--purple-glow); background: rgba(127, 0, 207, 0.2);
+            transform: translateY(-5px) scale(1.03); 
+            border-color: var(--purple-glow);
+            box-shadow: 0 0 25px rgba(127, 0, 207, 0.4); 
+            background: rgba(127, 0, 207, 0.15); 
         }
 
         .card-img {
-            width: 70px; height: 70px; object-fit: contain; margin-bottom: 15px;
+            width: 65px; height: 65px; object-fit: contain; margin-bottom: 10px;
             filter: drop-shadow(0 0 5px rgba(127, 0, 207, 0.5));
         }
 
-        .label { font-size: 1.5rem; font-weight: bold; text-transform: uppercase; }
+        .label { 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
         /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 1000px) {
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            .left-controls, .right-controls {
+                width: 100%;
+                justify-content: center;
+                max-width: none;
+            }
+            #quick-note { width: 90%; }
+        }
+
         @media (max-width: 768px) {
-            h1 { font-size: 3rem; margin-bottom: 20px; }
-            .grid-menu { grid-template-columns: repeat(2, 1fr); gap: 15px; } /* 2 Columns on tablets/phones */
-            .card { height: 150px; }
+            h1 { font-size: 2.5rem; margin-bottom: 5px; }
+            #greeting-text { font-size: 1.1rem; margin-bottom: 20px; }
+            .grid-menu { grid-template-columns: repeat(2, 1fr); gap: 15px; } 
+            .card { width: 100%; max-width: 200px; height: 130px; } 
             .card-img { width: 50px; height: 50px; }
-            .label { font-size: 1.1rem; }
+            .label { font-size: 1rem; }
+            .search-box { width: 200px; }
         }
 
         @media (max-width: 400px) {
-             /* For very small phones, keep 2 columns but make text smaller */
-            h1 { font-size: 2.2rem; }
+            h1 { font-size: 2rem; }
             .grid-menu { gap: 10px; }
-            .card { height: 130px; }
-            .label { font-size: 0.9rem; }
+            .card { height: 120px; }
         }
     </style>
 </head>
@@ -87,6 +240,25 @@
 
     <div class="container" id="mainContainer">
         <h1>MeAryanXD</h1>
+        <div id="greeting-text">Loading System...</div>
+
+        <div class="control-panel">
+            <div class="left-controls">
+                <form action="https://www.google.com/search" method="GET" target="_blank" style="display:flex; gap:10px; align-items:center;" onsubmit="setTimeout(() => this.reset(), 100);">
+                    <input type="text" name="q" class="search-box" placeholder="Search...">
+                    <button type="submit" class="search-btn">Explore!!</button>
+                </form>
+
+                <div class="clock-widget">
+                    <div class="time" id="digital-clock">Loading...</div>
+                    <div class="date" id="date-display">...</div>
+                </div>
+            </div>
+
+            <div class="right-controls">
+                <textarea id="quick-note" placeholder="Quick Notes... (Syncs to Cloud)"></textarea>
+            </div>
+        </div>
 
         <div class="grid-menu">
             <a href="music.html" class="card" onclick="transitionToPage(event, 'music.html')">
@@ -104,6 +276,11 @@
                 <div class="label">Discord</div>
             </a>
 
+            <a href="https://github.com/MeAryanXD" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/github.png" class="card-img" alt="GitHub">
+                <div class="label">GitHub</div>
+            </a>
+
             <a href="https://www.youtube.com" target="_blank" class="card">
                 <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/yt.png" class="card-img" alt="YouTube">
                 <div class="label">YouTube</div>
@@ -118,10 +295,37 @@
                 <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/outlook.png" class="card-img" alt="Outlook">
                 <div class="label">Outlook</div>
             </a>
+
+            <a href="https://chatgpt.com" target="_blank" class="card">
+                <img src="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/chatgpt.png" class="card-img" alt="Chat GPT">
+                <div class="label">Chat GPT</div>
+            </a>
+
         </div>
     </div>
 
     <script>
+        // --- 1. FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAt2zYFeF_1Y7-Dt6T_DatnKQch4miGGM4",
+            authDomain: "dashboard-2e1a8.firebaseapp.com",
+            projectId: "dashboard-2e1a8",
+            storageBucket: "dashboard-2e1a8.firebasestorage.app",
+            messagingSenderId: "260462525679",
+            appId: "1:260462525679:web:27f7c53c79f66c6d3d2f1a",
+            // I constructed this URL based on your Project ID.
+            // If this doesn't work, check the "Realtime Database" tab in Firebase Console for the URL.
+            databaseURL: "https://dashboard-2e1a8-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        const noteRef = db.ref('quick_notes/meAryanXD_note');
+
+        // --- 2. TRANSITION LOGIC ---
         function transitionToPage(event, url) {
             event.preventDefault(); 
             const container = document.getElementById('mainContainer');
@@ -129,6 +333,7 @@
             setTimeout(() => { window.location.href = url; }, 500); 
         }
 
+        // --- 3. STARFIELD ANIMATION ---
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let w, h;
@@ -159,6 +364,50 @@
             requestAnimationFrame(animate);
         }
         animate();
+
+        // --- 4. CLOCK & GREETING LOGIC ---
+        function updateClock() {
+            const now = new Date();
+            // Clock
+            document.getElementById('digital-clock').innerHTML = now.toLocaleTimeString('en-US', {
+                timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('date-display').innerHTML = now.toLocaleDateString('en-IN', options);
+
+            // Greeting
+            const hour = now.getHours();
+            let greetingText = "Welcome Back, Aryan.";
+            if (hour >= 5 && hour < 12) greetingText = "Good Morning, Aryan. Ready to grind?";
+            else if (hour >= 12 && hour < 17) greetingText = "Good Afternoon, Aryan. Keep it up!";
+            else if (hour >= 17 && hour < 22) greetingText = "Good Evening, Aryan. Time to chill?";
+            else greetingText = "Late Night Session, Aryan? Eyes on the prize.";
+            
+            const greetingEl = document.getElementById('greeting-text');
+            if (greetingEl.innerHTML !== greetingText) greetingEl.innerHTML = greetingText;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- 5. FIREBASE SYNC LOGIC ---
+        const noteArea = document.getElementById('quick-note');
+        let debounceTimer;
+
+        // Load data
+        noteRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data !== null && document.activeElement !== noteArea) {
+                noteArea.value = data;
+            }
+        });
+
+        // Save data
+        noteArea.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                noteRef.set(noteArea.value);
+            }, 1000); 
+        });
     </script>
 </body>
 </html>
