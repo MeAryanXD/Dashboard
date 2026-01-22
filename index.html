@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeAryanXD | Dashboard</title>
+    <title>MeAryanXD | Secure Dashboard</title>
     <link rel="icon" href="https://raw.githubusercontent.com/MeAryanXD/Dashboard/refs/heads/main/icons/title.jpg" type="image/jpg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +23,7 @@
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        html { background-color: var(--deep-blue); }
+        html { background-color: var(--deep-blue); user-select: none; /* Prevents highlighting text */ }
 
         body {
             margin: 0; padding: 0; width: 100%; height: 100%; 
@@ -35,14 +35,96 @@
 
         #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
+        /* --- LOCK SCREEN STYLES --- */
+        #lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 8, 20, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .lock-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
+            width: 300px;
+        }
+
+        .lock-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .pass-input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 50px;
+            border: 2px solid #333;
+            background: #000;
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+            margin-bottom: 20px;
+            transition: 0.3s;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .pass-input:focus {
+            border-color: var(--purple-glow);
+            box-shadow: 0 0 15px var(--purple-glow);
+        }
+
+        .unlock-btn {
+            padding: 10px 30px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #7F00CF, #00d2ff);
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: 0.3s;
+        }
+
+        .unlock-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 210, 255, 0.6); }
+
+        /* Shake Animation for Wrong Password */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+
+        .shake-anim { animation: shake 0.4s ease-in-out; border-color: red !important; box-shadow: 0 0 15px red !important; }
+
+        /* --- MAIN CONTAINER (Initially Blurred) --- */
         .container {
             position: relative; z-index: 10; width: 90%; max-width: 1200px;
             margin: 5px auto; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            opacity: 1; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            opacity: 0; /* Hidden initially */
+            transition: opacity 1s ease-in-out;
             padding-bottom: 50px;
+            pointer-events: none; /* No clicking until unlocked */
         }
 
+        .container.unlocked { opacity: 1; pointer-events: all; }
         .container.fade-out { opacity: 0; transform: scale(0.95); }
 
         /* --- TITLE --- */
@@ -225,6 +307,7 @@
             .card-img { width: 50px; height: 50px; }
             .label { font-size: 1rem; }
             .search-box { width: 200px; }
+            #lock-screen { z-index: 99999; }
         }
 
         @media (max-width: 400px) {
@@ -237,6 +320,15 @@
 <body>
 
     <canvas id="starfield"></canvas>
+
+    <div id="lock-screen">
+        <div class="lock-container">
+            <div class="lock-title">System Locked</div>
+            <input type="password" id="passwordInput" class="pass-input" placeholder="Enter Access Code">
+            <br>
+            <button onclick="checkPassword()" class="unlock-btn">UNLOCK</button>
+        </div>
+    </div>
 
     <div class="container" id="mainContainer">
         <h1>MeAryanXD</h1>
@@ -305,6 +397,56 @@
     </div>
 
     <script>
+        // --- SECURITY: ANTI INSPECT & RIGHT CLICK ---
+        // 1. Disable Right Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // 2. Disable Keyboard Shortcuts (F12, Ctrl+Shift+I, etc.)
+        document.onkeydown = function(e) {
+            // F12
+            if(e.keyCode == 123) return false;
+            // Ctrl+Shift+I (Inspect)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            // Ctrl+Shift+C (Inspect Element)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            // Ctrl+Shift+J (Console)
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            // Ctrl+U (View Source)
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        };
+
+        // --- PASSWORD SYSTEM ---
+        const myPassword = "Aryan9117"; // <--- CHANGE YOUR PASSWORD HERE
+        const passwordInput = document.getElementById('passwordInput');
+
+        // Allow pressing "Enter" to unlock
+        passwordInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") checkPassword();
+        });
+
+        function checkPassword() {
+            const val = passwordInput.value;
+            const screen = document.getElementById('lock-screen');
+            const main = document.getElementById('mainContainer');
+
+            if(val === myPassword) {
+                // Correct Password
+                screen.style.opacity = '0';
+                screen.style.pointerEvents = 'none';
+                setTimeout(() => { screen.style.display = 'none'; }, 800);
+                
+                // Show Main Content
+                main.classList.add('unlocked');
+            } else {
+                // Wrong Password - Trigger Shake
+                passwordInput.classList.add('shake-anim');
+                passwordInput.value = ''; // Clear input
+                setTimeout(() => {
+                    passwordInput.classList.remove('shake-anim');
+                }, 400);
+            }
+        }
+
         // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAt2zYFeF_1Y7-Dt6T_DatnKQch4miGGM4",
@@ -313,12 +455,9 @@
             storageBucket: "dashboard-2e1a8.firebasestorage.app",
             messagingSenderId: "260462525679",
             appId: "1:260462525679:web:27f7c53c79f66c6d3d2f1a",
-            // I constructed this URL based on your Project ID.
-            // If this doesn't work, check the "Realtime Database" tab in Firebase Console for the URL.
             databaseURL: "https://dashboard-2e1a8-default-rtdb.firebaseio.com"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -368,14 +507,12 @@
         // --- 4. CLOCK & GREETING LOGIC ---
         function updateClock() {
             const now = new Date();
-            // Clock
             document.getElementById('digital-clock').innerHTML = now.toLocaleTimeString('en-US', {
                 timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit'
             });
             const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             document.getElementById('date-display').innerHTML = now.toLocaleDateString('en-IN', options);
 
-            // Greeting
             const hour = now.getHours();
             let greetingText = "Welcome Back, Aryan.";
             if (hour >= 5 && hour < 12) greetingText = "Good Morning, Aryan. Ready to grind?";
@@ -393,7 +530,6 @@
         const noteArea = document.getElementById('quick-note');
         let debounceTimer;
 
-        // Load data
         noteRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data !== null && document.activeElement !== noteArea) {
@@ -401,7 +537,6 @@
             }
         });
 
-        // Save data
         noteArea.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
@@ -411,4 +546,3 @@
     </script>
 </body>
 </html>
-
