@@ -23,7 +23,7 @@
             --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        html { background-color: var(--deep-blue); user-select: none; /* Prevents highlighting text */ }
+        html { background-color: var(--deep-blue); user-select: none; }
 
         body {
             margin: 0; padding: 0; width: 100%; height: 100%; 
@@ -398,53 +398,62 @@
 
     <script>
         // --- SECURITY: ANTI INSPECT & RIGHT CLICK ---
-        // 1. Disable Right Click
         document.addEventListener('contextmenu', event => event.preventDefault());
 
-        // 2. Disable Keyboard Shortcuts (F12, Ctrl+Shift+I, etc.)
         document.onkeydown = function(e) {
-            // F12
-            if(e.keyCode == 123) return false;
-            // Ctrl+Shift+I (Inspect)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            // Ctrl+Shift+C (Inspect Element)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
-            // Ctrl+Shift+J (Console)
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
-            // Ctrl+U (View Source)
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+            if(e.keyCode == 123) return false; // F12
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Inspect
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // Element
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Console
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // View Source
         };
 
-        // --- PASSWORD SYSTEM ---
-        const myPassword = "Aryan9117"; // <--- CHANGE YOUR PASSWORD HERE
+        // --- PASSWORD SYSTEM (SECURE HASHING) ---
+        // This hash matches "Aryan9117"
+        // Generated: 0feabf6da7e21a2d4174c7d01bdb6d9c208d79a5d483520f50fbca6510327200
+        const storedHash = "0feabf6da7e21a2d4174c7d01bdb6d9c208d79a5d483520f50fbca6510327200"; 
+        
         const passwordInput = document.getElementById('passwordInput');
 
-        // Allow pressing "Enter" to unlock
         passwordInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") checkPassword();
         });
 
-        function checkPassword() {
-            const val = passwordInput.value;
+        async function checkPassword() {
+            // .trim() removes accidental spaces from mobile keyboards
+            const val = passwordInput.value.trim(); 
             const screen = document.getElementById('lock-screen');
             const main = document.getElementById('mainContainer');
 
-            if(val === myPassword) {
+            if(!val) return; 
+
+            // Generate hash of the input
+            const hash = await sha256(val);
+
+            // --- VERIFY MODE ---
+            if (hash === storedHash) {
                 // Correct Password
                 screen.style.opacity = '0';
                 screen.style.pointerEvents = 'none';
                 setTimeout(() => { screen.style.display = 'none'; }, 800);
-                
-                // Show Main Content
                 main.classList.add('unlocked');
             } else {
-                // Wrong Password - Trigger Shake
+                // Wrong Password
                 passwordInput.classList.add('shake-anim');
-                passwordInput.value = ''; // Clear input
+                passwordInput.value = ''; 
                 setTimeout(() => {
                     passwordInput.classList.remove('shake-anim');
                 }, 400);
             }
+        }
+
+        // --- CRYPTO HELPER FUNCTION ---
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
         }
 
         // --- 1. FIREBASE CONFIGURATION ---
